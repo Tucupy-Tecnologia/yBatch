@@ -12,9 +12,10 @@ import (
 
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
+	"github.com/nfnt/resize"
 )
 
-func ParseAsWebp(inputPath, outputDir string, quality float32, lossless bool, losslessCompression int) error {
+func ProcessImages(inputPath, outputDir string, quality float32, lossless bool, losslessCompression int, width, height int) error {
 	if outputDir == "" {
 		inputAbsPath, err := filepath.Abs(inputPath)
 		if err != nil {
@@ -41,7 +42,7 @@ func ParseAsWebp(inputPath, outputDir string, quality float32, lossless bool, lo
 		wg.Add(1)
 		go func(file string) {
 			defer wg.Done()
-			if err := convertToWebP(file, outputDir, quality, lossless, losslessCompression); err != nil {
+			if err := processImage(file, outputDir, quality, lossless, losslessCompression, width, height); err != nil {
 				errors <- fmt.Errorf("error processing %s: %v", file, err)
 			}
 		}(file)
@@ -59,31 +60,53 @@ func ParseAsWebp(inputPath, outputDir string, quality float32, lossless bool, lo
 	return nil
 }
 
-func convertToWebP(inputPath string, outputDir string, quality float32, lossless bool, losslessCompression int) error {
+func processImage(inputPath string, outputDir string, quality float32, lossless bool, losslessCompression int, width, height int) error {
 	fileInfo, err := os.Stat(inputPath)
 	if err != nil {
 		return fmt.Errorf("error getting file info: %v", err)
 	}
+
 	fileName := fileInfo.Name()
 	if fileInfo.IsDir() || strings.HasPrefix(fileName, ".") {
 		return nil // Skip directories and dotfiles
 	}
 
-	file, err := os.Open(inputPath)
+	img, err := loadImage(inputPath)
 	if err != nil {
-		return fmt.Errorf("error opening file: %v", err)
+		return err
+	}
+
+	fmt.Println(width, height)
+
+	if width > 0 && height > 0 {
+		img = resizeImage(img, width, height)
+	}
+
+	outputPath := filepath.Join(outputDir, strings.TrimSuffix(filepath.Base(inputPath), filepath.Ext(inputPath))+".webp")
+
+	return saveAsWebP(img, outputPath, quality, lossless, losslessCompression)
+}
+
+func loadImage(path string) (image.Image, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file: %v", err)
 	}
 	defer file.Close()
 
 	img, _, err := image.Decode(file)
 	if err != nil {
-		return fmt.Errorf("error decoding image %s: %v", inputPath, err)
+		return nil, fmt.Errorf("error decoding image %s: %v", path, err)
 	}
 
-	// Remove the old extension and add .webp
-	baseFileName := strings.TrimSuffix(filepath.Base(inputPath), filepath.Ext(inputPath))
-	outputPath := filepath.Join(outputDir, baseFileName+".webp")
+	return img, nil
+}
 
+func resizeImage(img image.Image, width, height int) image.Image {
+	return resize.Resize(uint(width), uint(height), img, resize.Lanczos3)
+}
+
+func saveAsWebP(img image.Image, outputPath string, quality float32, lossless bool, losslessCompression int) error {
 	output, err := os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("error creating output file: %v", err)
@@ -91,17 +114,13 @@ func convertToWebP(inputPath string, outputDir string, quality float32, lossless
 	defer output.Close()
 
 	var options *encoder.Options
-
 	if lossless {
 		options, err = encoder.NewLosslessEncoderOptions(encoder.PresetDefault, losslessCompression)
-		if err != nil {
-			return fmt.Errorf("error creating lossless encoder options: %v", err)
-		}
 	} else {
 		options, err = encoder.NewLossyEncoderOptions(encoder.PresetDefault, quality)
-		if err != nil {
-			return fmt.Errorf("error creating lossy encoder options: %v", err)
-		}
+	}
+	if err != nil {
+		return fmt.Errorf("error creating encoder options: %v", err)
 	}
 
 	if err := webp.Encode(output, img, options); err != nil {
