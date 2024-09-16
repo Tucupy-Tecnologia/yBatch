@@ -76,8 +76,6 @@ func processImage(inputPath string, outputDir string, quality float32, lossless 
 		return err
 	}
 
-	fmt.Println(width, height)
-
 	if width > 0 && height > 0 {
 		img = resizeImage(img, width, height)
 	}

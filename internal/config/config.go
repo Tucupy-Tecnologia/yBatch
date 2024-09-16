@@ -42,8 +42,5 @@ func ParseFlags() Config {
 	// Parse the remaining flags
 	fs.Parse(os.Args[2:])
 
-	// Debug print
-	fmt.Printf("Debug - Parsed config: Path=%s, Width=%d, Height=%d\n", config.Path, config.Width, config.Height)
-
 	return config
 }
