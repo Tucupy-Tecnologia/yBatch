@@ -179,6 +179,7 @@ yBatch is licensed under the MIT License.
 ## Support
 If you have any questions, concerns, or need assistance with yBatch, please don't hesitate to reach out to us. We're here to help!
 
+Website: https://tucupy.com
 Email: ybatch@tucupy.com
 GitHub Issues: https://github.com/Tucupy-Tecnologia/yBatch/issues
 
