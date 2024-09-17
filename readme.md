@@ -177,8 +177,13 @@ Contributions to yBatch are welcome! Please feel free to submit a Pull Request.
 yBatch is licensed under the MIT License.
 
 ## Support
+If you have any questions, concerns, or need assistance with yBatch, please don't hesitate to reach out to us. We're here to help!
 
-If you encounter any problems or have any questions, please open an issue on the GitHub repository.
+Email: ybatch@tucupy.com
+GitHub Issues: https://github.com/Tucupy-Tecnologia/yBatch/issues
+
+## Sponsors ❤️
+If you are enjoying some this project in your company, I'd really appreciate a sponsorship, a coffee or a dropped star. That gives me some more time to improve it to the next level.
 
 ## Troubleshooting
 
