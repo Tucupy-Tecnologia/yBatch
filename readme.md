@@ -183,7 +183,7 @@ Email: ybatch@tucupy.com
 GitHub Issues: https://github.com/Tucupy-Tecnologia/yBatch/issues
 
 ## Sponsors ❤️
-If you are enjoying some this project in your company, I'd really appreciate a sponsorship, a coffee or a dropped star. That gives me some more time to improve it to the next level.
+If you are enjoying some this project in your company, we'd really appreciate a sponsorship, a coffee or a dropped star. That gives us more time to improve it to the next level.
 
 ## Troubleshooting
 
